@@ -8,14 +8,14 @@ int v[104];
 vector<int> adj[54];
 
 int move(int here, int cnt){
-	if(here == 100)
-		return 100; // 나간 경우 칸을 100으로 설정해놓음 
-	if(adj[here].size() >= 2){ // 처음으로 말이 이동하는 경우 
+	if(here == 100) // 도착지점인 경우 칸의 idx인 100을 return 
+		return 100;
+	if(adj[here].size() >= 2){ // 처음으로 말이 이동할 때, 방향이 2개인 경우 -> 파란색으로 가야함([1]로 가야함) 
 		here = adj[here][1];
-		cnt--;
+		cnt--; // 이동했으므로 cnt 줄이기 
 	}
 	
-	// 이동 횟수가 남은 경우 
+	// 이동 횟수가 남은 경우
 	if(cnt){
 		queue<int> q;
 		q.push(here);
@@ -26,7 +26,7 @@ int move(int here, int cnt){
 			there = adj[x][0];
 			q.push(there);
 			
-			if(there == 100)
+			if(there == 100) // 도착 지점인 경우 
 				break;
 			cnt--;
 			if(cnt == 0)
@@ -41,21 +41,25 @@ int move(int here, int cnt){
 }
 
 bool isMal(int mal_idx, int idx){
-	if(mal_idx == 100) // 이동을 마치는 칸에 있는 경우 
+	if(mal_idx == 100) // 이동을 마치는 칸이 도착 칸인 경우 
 		return false;
 	for(int i = 0; i < 4; i++){
-		if(i == idx)
+		if(i == idx) // 자기 자신 
 			continue;
-		if(mal[i] == mal_idx)
+		if(mal[i] == mal_idx) // 이동을 마치는 칸에 다른 말이 있는 경우 = 고를 수 없음 (이게 무슨 말이지??) 
 			return true;
 	}
-	return false;
+	return false; // 이동을 마치는 칸이 도착 칸이 아니고, 다른 말도 다 없는 경우 
 }
 
 void add(int here, int there){
 	adj[here].push_back(there);	
 }
 
+// 위치와 해당 위치에 대한 점수를 따로 나타내어야 함.
+// 1. 위치 -> vector<pair<int, int>> adj;
+// 방향이 2개 존재하는것도 있기 때문에 push_back으로 넣고, [0]과 [1]을 이용하는 것 
+// 2. 해당 위치에 대한 점수 -> int v[] 
 void setMap(){
 	for(int i = 0; i <=19; i++){
 		add(i, i+1);
@@ -81,15 +85,18 @@ int go(int here){
 		
 	int ret = 0;
 	
+	// 4개 중에 하나씩 다 선택하고 -> 4
+	// 거기서 또 하나씩 다 선택하고 -> 4 x 4
+	// 또, 하나씩 다 선택하면서 나아가는 거 -> 결국 모든 경우의 수를 탐색하는 것 
 	for(int i = 0; i < 4; i++){
 		int temp_idx = mal[i];
 		int mal_idx = move(temp_idx, a[here]); // move(현재 위치, 움직일 수 있는 횟수) 
-		if(isMal(mal_idx, i))
+		if(isMal(mal_idx, i)) // 말이 이동을 마칠때 다른 말이 있는지 또는 도착 칸인지를 확인하는 것 
 			continue;
 		
 		mal[i] = mal_idx; 
-		ret = max(ret, go(here + 1) + v[mal_idx]); // 계속 비교하는게 아니라 마지막을 위해서 max를 쓰는거? 
-		mal[i] = temp_idx;	
+		ret = max(ret, go(here + 1) + v[mal_idx]); // 해당 말의 점수를 더하고 다음 스텝으로 넘어가는 행위 
+		mal[i] = temp_idx; // 해당 스텝에서 다른 말들이 움직일 수 있도록 하는 것!! 
 	}
 	
 	return ret;
