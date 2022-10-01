@@ -38,7 +38,7 @@ void dfs(int y, int x){
 		if(a[y][x] == a[ny][nx]){
 			visited[y][x] = visited[ny][nx] = 1;
 			flag = 0;
-			dfs(ny, nx); // 여기에 있어야 하는건가????? 
+			dfs(ny, nx); // 터진 경우는 visited 가 1로 됨. 만약에 여기서 dfs를 안해주면 findAdj에서 continue로 넘어가는 문제 발생 
 		}
 	}
 }
